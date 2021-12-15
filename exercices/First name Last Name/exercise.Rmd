@@ -19,6 +19,7 @@ The aim of the activity is to develop a methodology to answer a specific questio
 library(tidyverse)
 library(ggplot2)
 library(readr)
+library(dplyr)
 ```
 
 # Description of the dataset
@@ -59,15 +60,24 @@ FirstNames
 
 1. **Choose a firstname and analyse its frequency along time. Compare several firstnames frequency**
 
-First, we resume the different firstnames of the dataset
+First, we count the different firstnames of the dataset by decreasing order
 
 ```{r}
 count = table(FirstNames$preusuel)
+sort(count,  decreasing = TRUE)
+```
+We see that **Camille** is the mos frequent firstName, so we decide to study its frequency per year.
+
+il faut absolument respecter la case sur les noms
+```
+frequencies=FirstNames %>% group_by(annais) %>%count(preusuel) %>% arrange(desc(frequency))
+
 ```
 
-```{r}
-max(count)
 
+```{r}
+frequencies=FirstNames%>% group_by(annais) %>% filter(preusuel=="CAMILLE") %>% summarise(n = n()) %>% arrange(desc(n))
+frequencies
 ```
 
 ```{r}

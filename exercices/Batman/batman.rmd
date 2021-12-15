@@ -1,0 +1,160 @@
+---
+title: " Is batman somewhere ?"
+author: "Augusta Mukam, Fred Dagang"
+date: "December, 2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+
+
+First we get the data.
+```{r}
+data_path = "bats.csv"
+mydata = read.table(file = data_path, sep=";", skip=3, header= T)
+mydata
+```
+
+# 1. Study of the relationship between brain weight and body mass
+
+Because, BRW and BOW variable s don't have the same order of magnitude, we divide the column of BRW by 1000.
+
+```{r}
+mydata$BRW <- mydata$BRW/1000
+phyto = mydata[(mydata$Diet == 1),]
+plot(phyto)
+```
+ 
+ Then We can plot a figure showing the dependence of body mass and brain weight.
+```{r}
+library(ggplot2)
+ggplot(mydata, aes(x=BOW,y=BRW)) + 
+  geom_point() +
+  #geom_line() + 
+  ggtitle("Brain weight and body mass") +
+  xlab("Body mass ") + 
+  ylab("Brain weight")
+```
+
+Then we obtain the mathematical form of the model based on a **simple regression model**.
+```{r}
+reg1 = lm(BRW~BOW, data = phyto)
+summary(reg1)
+```
+
+The estimate of the intercept is **0.6234**. The coefficient of determination is **alpha1 = 0.0089**.
+**BRW = alpha1 * BOW + intercept**
+
+The **H0 hypothesis is : alpha1 = intercept = 0**. So we reject it.
+Brain weight depends strongly on body mass.
+
+
+Now we analyse the variance.
+```{r}
+anova(reg1)
+```
+
+We can see the MSM, MSE, Degree of freedom.
+The sum of residual squares is **MSE = 4.254**
+
+Now we plot the graph of the residuals.
+```{r}
+plot(reg1$fitted.values, reg1$residuals, xlab = "Predicted", ylab = "Residuals")
+```
+
+It appears to this graph one very distant point.
+
+```{r}
+plot(reg1,4)
+which(phyto$BRW>8)
+```
+
+So we have one individual point. We redo the analysis by removing this point.
+```{r}
+phytobis = phyto[which(phyto$BRW < 8),]
+reg2 = lm(BRW ~ BOW, data = phytobis)
+summary(reg2)
+```
+
+```{r}
+par(mfcol = c(2,2))
+plot(reg1)
+plot(reg2)
+```
+
+Discussion : 
+
+# 2. Study of the contribution to the total weight od each part of the brain
+
+```{r}
+library(corrplot)
+```
+
+```{r}
+phytoNum = phyto[, c(4:8)]
+mat.cor = cor(phytoNum)
+corrplot(mat.cor, type = "upper")
+```
+```{r}
+cor.test(phyto$BRW, phyto$HIP)
+```
+
+BRW variable depend on HIP variable.
+
+```{r}
+cor.test(phyto$BRW, phyto$MOB)
+```
+
+BRW variable depend on MOB variable.
+```{r}
+cor.test(phyto$BRW, phyto$AUD)
+```
+
+BRW variable doesn't depend enough on AUD variable.
+
+Now we run some multiple regression model.
+```{r}
+regm = lm(BRW~AUD+MOB+HIP, data = phytobis)
+summary(regm)
+```
+
+The estimate of the intercept is **-0.3126**. The coefficients of determination are **alpha1 = 0.048**, **alpha2 = -0.0024** and **alpha3 = 0.016**.
+
+**BRW = alpha1 * AUD + alpha2 * MOB + alpha3 * HIP + intercept**
+
+The **H0 hypothesis is : alpha1 = alpha2 = alpha3 = intercept = 0**. So we reject it.
+Brain weight (BRW) depends strongly on the volume of the auditory part of the brain (AUD) and the hippocampus (HIP). But it doesn't depend a lot on the volume of the olfactory zone (MOB). So we can remove the variable MOB in the model.
+
+
+Now we analyse the variance.
+```{r}
+anova(regm)
+```
+
+
+```{r}
+reg0 = lm(BRW ~ 1, data = phyto)
+step(reg0, scope=BRW~AUD + MOB + HIP, discretion = "forward")
+
+```
+
+The purpose of this test is 
+
+
+# 3. Link between volume of the auditory part and diet.
+
+```{r}
+mydata$Diet_F = as.factor(mydata$Diet)
+with(mydata, plot(AUD~Diet))
+with(mydata, plot(AUD~Diet_F))
+```
+
+Now we do the regression analysis.
+```{r}
+lm = lm(AUD~Diet_F, data = mydata)
+anova(lm)
+```
+
+So we can conclude that auditory brain volume (AUD) and diet (Diet) are not really linked.
