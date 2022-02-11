@@ -1,0 +1,51 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+# Linear regression on trees
+
+```{r}
+data_path = "ble.csv"
+mydata = read.table(file = data_path, sep=";", dec=".", header= TRUE)
+mydata
+```
+# 1- factor ANOVA
+
+```{r}
+library(ggplot2)
+
+ggplot(mydata, aes(x=variete,y=rdt)) + 
+  geom_boxplot() + 
+  ggtitle("Whisker boxes") +
+  xlab("Wheat variety") + 
+  ylab("Yield")
+```
+
+```{r}
+ggplot(mydata, aes(x=variete,y=rdt)) + 
+  geom_boxplot() + 
+  ggtitle("Whisker boxes") +
+  xlab("Wheat variety") + 
+  ylab("Yield")
+```
+
+```{r}
+annova_variete <- lm(rdt~variete, data=mydata)
+summary(annova_variete)
+```
+```{r}
+anova(annova_variete)
+```
+
+```{r}
+annova_variete_phyto <- lm(rdt~variete*phyto, data=mydata)
+summary(annova_variete_phyto)
+```
+```{r}
+anova(annova_variete_phyto)
+```
+We can keep the value depending of the variety, the others no effects
+So the model is mainly drived by the variety
+
+

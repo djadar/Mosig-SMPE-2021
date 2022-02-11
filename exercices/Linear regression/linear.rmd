@@ -1,0 +1,87 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+# Linear regression on trees
+
+```{r}
+mydata = read.table(file = "arbres-tot.csv", sep=";", skip=3, header= TRUE)
+mydata = mydata[mydata$X10!=0,]
+mydata
+```
+
+```{r}
+library(ggplot2)
+circ =mydata$X70
+height =mydata$X10
+
+ggplot(mydata, aes(x=circ,y=height)) + geom_point() + xlab("circ") + ylab("height")
+```
+
+```{r}
+simple_reg <-lm(height~circ, data=mydata)
+names(simple_reg)
+```
+
+
+```{r}
+anova(simple_reg)
+```
+
+```{r}
+summary(simple_reg)
+```
+```{r}
+acf(residuals(simple_reg))
+```
+
+
+```{r}
+ggplot(mydata, aes(x=circ, y=height)) + geom_point() + stat_smooth(method = "lm", se=FALSE) + xlab("circ") + ylab("height")
+```
+
+
+```{r}
+i=4
+plot(simple_reg,i)
+#plot(simple_reg$residuals)
+```
+```{r}
+predict(simple_reg, data.frame(circ=10), interval="prediction")
+```
+# Multivariate regression
+
+```{r}
+mydata$circ_sqrt <- sqrt(mydata$X70)
+```
+
+```{r}
+multi_reg <- lm(height~circ+circ_sqrt,data=mydata)
+summary(multi_reg)
+```
+```{r}
+multi_reg_2 <- lm(height~circ_sqrt, data=mydata)
+summary(multi_reg_2)
+```
+
+
+```{r}
+circ_pred <- seq(0.175,len=1000)
+height_pred <- multi_reg_2$coefficients[1] + multi_reg_2$coefficients[2]*sqrt(circ_pred)
+fct_reg <- data.frame(circ_pred=circ_pred, height_pred=height_pred)
+ggplot()+
+  geom_point(data = mydata, aes(x = circ, y= height))+
+  geom_line(data=fct_reg, aes(x=circ_pred, y=height_pred), col="blue")+
+  stat_smooth(method = "lim", se=FALSE)+
+  xlab("circ")+
+  ylab("height")
+```
+```{r}
+plot(multi_reg_2)
+```
+
+
+
+
+

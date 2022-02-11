@@ -1,0 +1,145 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+# Is batman somewhere
+
+First we get the data
+```{r}
+data_path = "bats.csv"
+mydata = read.table(file = data_path, sep=";", skip=3, header= T)
+mydata
+```
+
+```{r}
+phyto = mydata[(mydata$Diet == 1),]
+mydata$BRW <- mydata$BRW/1000
+```
+ Then We can plot a figure showing the dependance of body mass and brain weight
+ Bow(g) B
+```{r}
+library(ggplot2)
+ggplot(mydata, aes(x=BOW,y=BRW)) + 
+  geom_point() +
+  #geom_line() + 
+  ggtitle("brain weight and body mass") +
+  xlab("Body mass ") + 
+  ylab("Brain weight")
+```
+Then we obtain the mathematical form of the model
+```{r}
+reg1 = lm(BRW~BOW, data = phyto)
+summary(reg1)
+```
+The estimate of the intercept is **623.4469**. The coefficient of determination is **8.9999**.
+BRW = alpha * BOW + intercept
+The H0 hypothesis is : alpha1 = intercept =0. So we reject it.
+Brain weight depends strongly on body mass
+
+
+Now we analyse the variance
+```{r}
+anova(reg1)
+```
+We can see the MSM, MSE, Degree of freedom.
+**MSE = 4253838**
+
+
+```{r}
+plot(reg1$fitted.values, reg1$residuals, xlab = "Predicted", ylab = "Residuals")
+```
+It appears to this graph some points wich large difference of value
+
+```{r}
+#phyto=phyto[phyto$BRW < 8,]
+which(phyto$BRW>8)
+```
+
+
+```{r}
+plot(reg1,4)
+phytobis = phyto[which(phyto$BRW < 8),]
+reg2 = lm(BRW~BOW,data=phytobis)
+summary(reg2)
+```
+```{r}
+par(mfcol = c(2,2))
+plot(reg1)
+plot(reg2)
+```
+
+
+
+```{r}
+library(corrplot)
+```
+
+```{r}
+phytoNum = phyto[, c(4:8)]
+mat.cor = cor(phytoNum)
+corrplot(mat.cor, type = "upper")
+```
+```
+
+
+```{r}
+cor
+```
+
+```{r}
+summary(simple_reg)
+```
+```{r}
+acf(residuals(simple_reg))
+```
+
+
+```{r}
+ggplot(mydata, aes(x=circ, y=height)) + geom_point() + stat_smooth(method = "lm", se=FALSE) + xlab("circ") + ylab("height")
+```
+
+
+```{r}
+i=4
+plot(simple_reg,i)
+#plot(simple_reg$residuals)
+```
+```{r}
+predict(simple_reg, data.frame(circ=10), interval="prediction")
+```
+# Multivariate regression
+
+```{r}
+mydata$circ_sqrt <- sqrt(mydata$X70)
+```
+
+```{r}
+multi_reg <- lm(height~circ+circ_sqrt,data=mydata)
+summary(multi_reg)
+```
+```{r}
+multi_reg_2 <- lm(height~circ_sqrt, data=mydata)
+summary(multi_reg_2)
+```
+
+
+```{r}
+circ_pred <- seq(0.175,len=1000)
+height_pred <- multi_reg_2$coefficients[1] + multi_reg_2$coefficients[2]*sqrt(circ_pred)
+fct_reg <- data.frame(circ_pred=circ_pred, height_pred=height_pred)
+ggplot()+
+  geom_point(data = mydata, aes(x = circ, y= height))+
+  geom_line(data=fct_reg, aes(x=circ_pred, y=height_pred), col="blue")+
+  stat_smooth(method = "lim", se=FALSE)+
+  xlab("circ")+
+  ylab("height")
+```
+```{r}
+plot(multi_reg_2)
+```
+
+
+
+
+
