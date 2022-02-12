@@ -1,0 +1,36 @@
+---
+title: "Design of experiment exercise"
+author: "Augusta Mukam"
+date: "25/01/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Describing the experiment
+I generated a dataset of 25 entries by modifying the 11 xi values and getting the output value corresponding to them. 
+The goal is to get the function F like F(X)=Y, X is a vector of 11 elements.
+We store it in a csv file
+```{r}
+library(dplyr)
+df =read.csv(file="user_e7268.csv", colClasses=c("NULL", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA))
+df
+```
+
+First, we figure out that the intercept F(0) is 1.0152508.
+
+
+We can use a linear regression for a sanity check and we see that we obtain exactly the same result. This linear regression will also allow us to predict.
+
+```{r}
+form <- as.formula(paste("y~", paste0("x", 1:11, collapse="+")))
+reg=lm(form,data=df)
+reg
+```
+
+```{r}
+plot(df)
+```
+
