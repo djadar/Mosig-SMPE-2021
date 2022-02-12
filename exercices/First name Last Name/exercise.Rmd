@@ -62,13 +62,13 @@ FirstNames
 
 First, we count the different firstnames of the dataset by decreasing order
 
-```{r}
+```{r include=FALSE}
 count = table(FirstNames$preusuel)
 sort(count,  decreasing = TRUE)
 ```
 We see that **Camille** is the mos frequent firstName, so we decide to study its frequency per year.
 
-il faut absolument respecter la case sur les noms
+Il faut absolument respecter la case sur les noms.
 ```
 frequencies=FirstNames %>% group_by(annais) %>%count(preusuel) %>% arrange(desc(frequency))
 
@@ -87,13 +87,16 @@ frequencies
 
 2. **Establish, by gender, the most given firstname by year** 
 ```{r}
+library(dplyr)
+most_given_by_year_and_gender=FirstNames %>% filter( preusuel != "_PRENOMS_RARES") %>%  group_by(sexe,annais) %>%filter(nombre==max(nombre) ) 
 
+ggplot(data = most_given_by_year_and_gender %>% filter(1999<=as.numeric( annais) & as.numeric( annais) <=2010 ), aes(x=annais, y=nombre, shape = factor(sexe), color = factor(preusuel)))+geom_point()
 ```
 3. Make a short synthesis
 
-```{r}
 
-```
+The entries prenoms rares dominate in term of frequency but there are many other rare first name, I mean names that occur no more than once. They should be in the prenoms rares category.
+
 4. Advanced (not mandatory) : is the firstname correlated with the localization (department) ? What could be a method to analyze such a correlation.
 
 ```{r}

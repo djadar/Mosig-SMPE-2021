@@ -9,8 +9,6 @@ https://computingforgeeks.com/how-to-install-r-and-rstudio-on-ubuntu-debian-mint
 
 ## School exercices
 
-1. exercise/make graphic and interpretation
-
-2. exercise/First name Last Name
+exercise/
 
 
